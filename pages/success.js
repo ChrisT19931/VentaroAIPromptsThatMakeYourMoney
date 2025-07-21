@@ -11,7 +11,7 @@ export default function Success() {
     <>
       <Head>
         <title>Download Your 15-Page AI Prompts That Make You Money Guide - Thank You!</title>
-        <meta name="description" content="Thank you for your purchase! Download your 15-page guide with profitable AI prompts and start earning right away." />
+        <meta name="description" content="Thank you for your purchase! Download your 15-page guide with practical AI prompts and monetization strategies." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="icon" href="/favicon.ico" />
@@ -44,7 +44,7 @@ export default function Success() {
                   Payment Successful!
                 </h1>
                 <p className="mt-4 text-xl text-gray-300">
-                  Thank you for your purchase! Your 15-page guide with profitable AI prompts is ready for download.
+                  Thank you for your purchase! Your 15-page guide with practical AI prompts and monetization strategies is ready for download.
                 </p>
               </div>
 
@@ -55,7 +55,7 @@ export default function Success() {
                   AI Prompts That Make You Money: 15-Page Guide
                 </h2>
                 <p className="text-gray-300 mb-6">
-                  Your concise 15-page guide with 15 profitable AI prompts to help you start making money right away.
+                  Your concise 15-page guide with 15 practical AI prompts and detailed implementation strategies.
                 </p>
                 
                 <Link
@@ -77,14 +77,14 @@ export default function Success() {
 
                   <h3 className="text-lg font-semibold text-white mb-2">Start Using the Prompts</h3>
                   <p className="text-gray-400 text-sm">
-                    Begin with Prompt 1 to create compelling e-commerce product descriptions that can earn you $50-$150 each.
+                    Begin with Prompt 1 to create compelling e-commerce product descriptions with clear pricing guidance.
                   </p>
                 </div>
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
 
                   <h3 className="text-lg font-semibold text-white mb-2">Monetize the Prompts</h3>
                   <p className="text-gray-400 text-sm">
-                    Follow the monetization strategies for each prompt to start generating income within 24 hours.
+                    Follow the detailed monetization strategies and implementation guides for each prompt.
                   </p>
                 </div>
               </div>

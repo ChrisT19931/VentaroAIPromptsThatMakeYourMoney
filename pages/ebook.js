@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { dbOperations } from '../lib/supabase'
 
 export default function Ebook() {
   const router = useRouter()
@@ -38,39 +39,28 @@ export default function Ebook() {
 
   const verifyAccess = async () => {
     try {
-      const authToken = localStorage.getItem('token')
-      const headers = {
-        'Content-Type': 'application/json',
-      }
-      
-      if (authToken) {
-        headers.Authorization = `Bearer ${authToken}`
-      }
-      
-      const response = await fetch('/api/verify-access', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ 
-          session_id: session_id || null,
-          access_token: token || null
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setAuthorized(true)
-        setPurchaseInfo(data)
+      if (session_id) {
+        // Validate session ID with Supabase
+        const hasAccess = await dbOperations.validateEbookAccess(session_id)
         
-        // Update URL to use token if we got one back
-        if (data.accessToken && !token) {
-          router.replace(`/ebook?token=${data.accessToken}`, undefined, { shallow: true })
+        if (hasAccess) {
+          setAuthorized(true)
+          setPurchaseInfo({ 
+            sessionId: session_id,
+            message: 'Access granted via purchase verification'
+          })
+        } else {
+          setError('Invalid or expired session. Please check your purchase confirmation email.')
         }
+      } else if (token) {
+        // For token-based access (if implemented)
+        setError('Token-based access not yet implemented. Please use your session ID from the purchase confirmation.')
       } else {
-        setError(data.error || 'Access denied. Invalid or expired session.')
+        setError('No valid access credentials provided.')
       }
     } catch (err) {
-      setError('Unable to verify access. Please try again.')
+      console.error('Access verification error:', err)
+      setError('Unable to verify access. Please try again or contact support.')
     } finally {
       setLoading(false)
     }
@@ -78,37 +68,36 @@ export default function Ebook() {
 
   const downloadPDF = async () => {
     try {
-      const authToken = localStorage.getItem('authToken');
       const response = await fetch('/api/download', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          session_id: sessionId
+          session_id: session_id
         })
-      });
+      })
 
       if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'AI-Prompts-That-Make-You-Money.pdf';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.style.display = 'none'
+        a.href = url
+        a.download = 'AI-Prompts-That-Make-You-Money-15-Page-Guide.pdf'
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
       } else {
-        alert('Download failed. Please try again.');
+        const errorData = await response.json()
+        alert(errorData.error || 'Download failed. Please try again.')
       }
     } catch (error) {
-      console.error('Download error:', error);
-      alert('Download failed. Please try again.');
+      console.error('Download error:', error)
+      alert('Download failed. Please contact support if the issue persists.')
     }
-  };
+  }
 
   if (loading) {
     return (

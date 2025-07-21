@@ -10,8 +10,15 @@ export default function Buy() {
   const [email, setEmail] = useState('')
 
   const handleCheckout = async () => {
+    // Validate email
     if (!email) {
       alert('Please enter your email address')
+      return
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address')
       return
     }
 
@@ -24,25 +31,32 @@ export default function Buy() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
-          priceId: 'price_1234567890', // You'll replace this with your actual Stripe price ID
+          email: email.toLowerCase().trim(),
         }),
       })
 
-      const { sessionId } = await response.json()
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      
+      if (data.error) {
+        throw new Error(data.error)
+      }
       
       const stripe = await stripePromise
       const { error } = await stripe.redirectToCheckout({
-        sessionId: sessionId,
+        sessionId: data.sessionId,
       })
 
       if (error) {
         console.error('Stripe error:', error)
-        alert('Payment failed. Please try again.')
+        alert('Payment failed: ' + error.message)
       }
     } catch (error) {
       console.error('Checkout error:', error)
-      alert('Something went wrong. Please try again.')
+      alert('Something went wrong: ' + error.message + '. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -52,7 +66,7 @@ export default function Buy() {
     <>
       <Head>
         <title>Buy AI Prompts That Make You Money - 15-Page Guide - Instant Download</title>
-        <meta name="description" content="Purchase the 15-page AI Prompts That Make You Money guide for just $3. Instant download after payment. Get 15 proven AI prompts that can earn you $50-$10,000 per project." />
+        <meta name="description" content="Purchase the 15-page AI Prompts That Make You Money guide for just $3. Instant download after payment. Get 15 practical AI prompts with detailed monetization strategies." />
         <meta name="keywords" content="buy AI prompts guide, AI automation guide, make money with AI, AI business course, artificial intelligence income" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex, nofollow" />
@@ -84,7 +98,7 @@ export default function Buy() {
                   AI Prompts That Make You Money
                 </h1>
                 <p className="mt-4 text-xl text-gray-300">
-                  15 Profitable AI Prompts to Start Earning Today
+                  15 Practical AI Prompts with Monetization Strategies
                 </p>
               </div>
 
@@ -103,7 +117,7 @@ export default function Buy() {
                       <div className="flex-shrink-0">
                         <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white text-sm font-bold">✓</div>
                       </div>
-                      <p className="ml-3 text-gray-300">15 proven money-making AI prompts</p>
+                      <p className="ml-3 text-gray-300">15 practical AI prompts with earning potential</p>
                     </div>
                     <div className="flex items-start">
                       <div className="flex-shrink-0">
@@ -121,7 +135,7 @@ export default function Buy() {
                       <div className="flex-shrink-0">
                         <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white text-sm font-bold">✓</div>
                       </div>
-                      <p className="ml-3 text-gray-300">Pricing guidance for each prompt ($50-$10,000 per project)</p>
+                      <p className="ml-3 text-gray-300">Pricing guidance and market examples for each prompt</p>
                     </div>
                     <div className="flex items-start">
                       <div className="flex-shrink-0">

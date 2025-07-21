@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import fs from 'fs'
 import path from 'path'
 import { verifyAuthToken } from '../../lib/auth'
+import { dbOperations, rateLimiter } from '../../lib/supabase'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -9,6 +10,12 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { session_id } = req.body
+      const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown'
+
+      // Rate limiting - 5 downloads per hour per IP
+      if (!rateLimiter.isAllowed(clientIp, 5, 3600000)) {
+        return res.status(429).json({ error: 'Too many download attempts. Please try again later.' })
+      }
 
       // Check for admin user access first
       const authUser = verifyAuthToken(req)
@@ -19,7 +26,11 @@ export default async function handler(req, res) {
         res.setHeader('Content-Type', 'application/pdf')
         res.setHeader('Content-Disposition', 'attachment; filename="AI-Prompts-That-Make-You-Money-Admin.pdf"')
         res.setHeader('Content-Length', pdfContent.length)
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+        res.setHeader('Pragma', 'no-cache')
+        res.setHeader('Expires', '0')
         
+        console.log(`Admin PDF download from IP: ${clientIp}`)
         return res.status(200).send(pdfContent)
       }
 
@@ -27,24 +38,37 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Session ID is required' })
       }
 
-      // Verify the payment session with Stripe
-      const session = await stripe.checkout.sessions.retrieve(session_id)
+      // Verify access with Supabase (primary validation)
+      const hasAccess = await dbOperations.validateEbookAccess(session_id)
       
-      if (session.payment_status !== 'paid') {
-        return res.status(403).json({ error: 'Payment not completed' })
+      if (!hasAccess) {
+        // Fallback to Stripe verification for backward compatibility
+        try {
+          const session = await stripe.checkout.sessions.retrieve(session_id)
+          if (session.payment_status !== 'paid') {
+            return res.status(403).json({ error: 'Access denied. Payment not completed or session expired.' })
+          }
+        } catch (stripeError) {
+          console.error('Stripe verification failed:', stripeError)
+          return res.status(403).json({ error: 'Access denied. Invalid session ID.' })
+        }
       }
 
       // Generate our 15-page ebook with AI prompts that make money
       const pdfContent = generateAIPromptsEbook()
       
       res.setHeader('Content-Type', 'application/pdf')
-      res.setHeader('Content-Disposition', 'attachment; filename="AI-Prompts-That-Make-You-Money.pdf"')
+      res.setHeader('Content-Disposition', 'attachment; filename="AI-Prompts-That-Make-You-Money-15-Page-Guide.pdf"')
       res.setHeader('Content-Length', pdfContent.length)
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.setHeader('Pragma', 'no-cache')
+      res.setHeader('Expires', '0')
       
+      console.log(`PDF downloaded by session: ${session_id} from IP: ${clientIp}`)
       res.status(200).send(pdfContent)
     } catch (err) {
       console.error('Download error:', err)
-      res.status(500).json({ error: 'Download failed' })
+      res.status(500).json({ error: 'Download failed. Please try again or contact support.' })
     }
   } else {
     res.setHeader('Allow', 'POST')

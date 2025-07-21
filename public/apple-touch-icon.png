@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <rect width="180" height="180" rx="40" fill="#000000"/>
+  <g transform="translate(30, 30)">
+    <path d="M20 20h80v8H20zm0 20h80v8H20zm0 20h60v8H20zm0 20h70v8H20z" fill="#ffffff"/>
+    <circle cx="100" cy="80" r="15" fill="#00ff88"/>
+    <text x="60" y="110" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#00ff88" text-anchor="middle">AI</text>
+  </g>
+</svg>

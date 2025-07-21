@@ -9,15 +9,15 @@ export default function Home() {
     <>
       <Head>
         <title>AI Prompts That Make You Money | 15 Profitable Prompts Guide 2025</title>
-        <meta name="description" content="Discover 15 proven AI prompts that generate real income. Learn how to monetize these prompts and start earning $50-$10,000 per project. Download our comprehensive 15-page guide and start earning today!" />
+        <meta name="description" content="Learn 15 practical AI prompts with monetization strategies. Comprehensive 15-page guide with implementation examples and earning potential insights. Digital download available." />
         <meta name="keywords" content="AI prompts, artificial intelligence, make money online, AI automation, passive income, AI business, machine learning, chatbots, AI tools, digital income, AI entrepreneurship, automated income" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta property="og:title" content="AI Prompts That Make You Money | 15 Profitable Prompts" />
-        <meta property="og:description" content="15 proven AI prompts that can earn you $50-$10,000 per project. Comprehensive 15-page guide with monetization strategies for each prompt." />
+        <meta property="og:description" content="15 practical AI prompts with detailed monetization strategies. Comprehensive 15-page guide with implementation examples and earning potential insights." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="AI Prompts That Make You Money | 15 Profitable Prompts" />
-        <meta name="twitter:description" content="15 proven AI prompts that can earn you $50-$10,000 per project. Start making money with AI today!" />
+        <meta name="twitter:description" content="15 practical AI prompts with monetization strategies. Learn how to leverage AI for income generation with our comprehensive guide." />
         <link rel="canonical" href="https://ai-agents-mastery.vercel.app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -59,7 +59,7 @@ export default function Home() {
               
               <div className="bg-gray-900/80 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-gray-800 transform hover:scale-105 transition-all duration-500 hover:shadow-3xl">
                 <p className="text-xl md:text-2xl text-gray-200 font-medium mb-6">
-                  15 Proven AI Prompts • $50-$10,000 Per Project
+                  15 Practical AI Prompts • Monetization Strategies Included
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <div className="text-4xl font-black text-white">
@@ -91,7 +91,7 @@ export default function Home() {
                 Why This Guide Works
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                15 battle-tested AI prompts with proven monetization strategies
+                15 carefully curated AI prompts with detailed monetization strategies and implementation guides
               </p>
             </div>
 
@@ -104,7 +104,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-4">Instant Results</h3>
                 <p className="text-gray-300 text-lg">
-                  Copy, paste, and start earning immediately. No learning curve required.
+                  Ready-to-use prompts with clear implementation guides and monetization strategies.
                 </p>
               </div>
 
@@ -116,7 +116,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-4">Proven Profitable</h3>
                 <p className="text-gray-300 text-lg">
-                  Each prompt tested and proven to generate $50-$10,000 per project.
+                  Comprehensive prompts with real-world applications and earning potential examples.
                 </p>
               </div>
 
@@ -163,7 +163,7 @@ export default function Home() {
                 Start Earning Today
               </h2>
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join thousands already earning with AI. Download your 15-prompt guide and start making money immediately.
+                Learn how to leverage AI prompts for income generation. Download your comprehensive 15-prompt guide with step-by-step strategies.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link href="/buy" className="bg-white text-black px-12 py-4 rounded-xl text-xl font-black hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:-translate-y-2 shadow-xl">
