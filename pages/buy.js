@@ -1,13 +1,25 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+// Initialize Stripe only if the key is available
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ? 
+  loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) : 
+  null
 
 export default function Buy() {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
+  const [stripeError, setStripeError] = useState(false)
+  
+  useEffect(() => {
+    // Check if Stripe is properly initialized
+    if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+      console.error('Stripe publishable key is missing')
+      setStripeError(true)
+    }
+  }, [])
 
   const handleCheckout = async () => {
     // Validate email
@@ -19,6 +31,12 @@ export default function Buy() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       alert('Please enter a valid email address')
+      return
+    }
+
+    // Check if Stripe is initialized
+    if (!stripePromise) {
+      alert('Payment system is not available. Please try again later.')
       return
     }
 
@@ -46,6 +64,10 @@ export default function Buy() {
       }
       
       const stripe = await stripePromise
+      if (!stripe) {
+        throw new Error('Payment system is not available')
+      }
+      
       const { error } = await stripe.redirectToCheckout({
         sessionId: data.sessionId,
       })
@@ -170,6 +192,12 @@ export default function Buy() {
                   </div>
 
                   <div className="mt-8">
+                    {stripeError && (
+                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
+                        <p className="font-bold">Payment System Unavailable</p>
+                        <p>Our payment system is currently unavailable. Please try again later or contact support.</p>
+                      </div>
+                    )}
                     <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                       Email Address (for download link)
                     </label>
@@ -186,7 +214,7 @@ export default function Buy() {
 
                   <button
                     onClick={handleCheckout}
-                    disabled={loading}
+                    disabled={loading || stripeError}
                     className="w-full mt-6 bg-white hover:bg-gray-200 text-black font-bold py-4 px-8 rounded-lg text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {loading ? (
