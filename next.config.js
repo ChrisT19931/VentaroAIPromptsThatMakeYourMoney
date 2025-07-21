@@ -6,7 +6,7 @@ const nextConfig = {
     domains: ['localhost', 'ventaro-ai-prompts-that-make-your-m.vercel.app'],
   },
   env: {
-    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
   },
   async headers() {
     return [
