@@ -2,6 +2,7 @@ import { buffer } from 'micro'
 import Stripe from 'stripe'
 import sgMail from '@sendgrid/mail'
 import { dbOperations } from '../../lib/supabase'
+import { sendPurchaseConfirmation } from '../../lib/sendgrid'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
@@ -77,72 +78,73 @@ async function handleSuccessfulPayment(session) {
       // Continue with email sending even if DB fails
     }
 
-    // Send order confirmation email to customer
-    const customerMsg = {
-      to: customerEmail,
-      from: {
-        email: process.env.SENDGRID_FROM_EMAIL || 'chris.t@ventarosales.com',
-        name: 'AI Prompts That Make You Money'
-      },
-      replyTo: process.env.SENDGRID_REPLY_TO || 'chris.t@ventarosales.com',
-      subject: '🎉 Your AI Prompts Guide is Ready! Start Earning Today',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Your AI Prompts Guide is Ready!</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Payment Successful!</h1>
-            <p style="color: white; margin: 10px 0 0 0; font-size: 18px;">Your AI Prompts Guide is Ready</p>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;">
-            <h2 style="color: #333; margin-top: 0;">Thank you for your purchase!</h2>
-            
-            <p>Hi there,</p>
-            
-            <p>Your payment has been successfully processed, and your <strong>AI Prompts That Make You Money: 15-Page Guide</strong> is now ready for download.</p>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
-              <h3 style="margin-top: 0; color: #667eea;">📚 What You Get:</h3>
-              <ul style="margin: 0; padding-left: 20px;">
-                <li>15 profitable AI prompts with real earning potential</li>
-                <li>Step-by-step monetization strategies</li>
-                <li>Example outputs and use cases</li>
-                <li>Tips to earn $50-$500 per project</li>
-              </ul>
+    // Create the download link
+    const downloadLink = `${process.env.NEXT_PUBLIC_BASE_URL}/ebook?session_id=${session.id}`
+    
+    // Use the SendGrid helper function to send purchase confirmation
+    const emailResult = await sendPurchaseConfirmation(
+      customerEmail,
+      customerEmail.split('@')[0], // Use part of email as name if no name provided
+      downloadLink
+    )
+    
+    if (emailResult.success) {
+      console.log('Order confirmation email sent to:', customerEmail)
+    } else {
+      console.error('Failed to send confirmation email:', emailResult.error)
+      
+      // Fallback to direct SendGrid API if helper function fails
+      const customerMsg = {
+        to: customerEmail,
+        from: {
+          email: process.env.SENDGRID_FROM_EMAIL || 'chris.t@ventarosales.com',
+          name: 'AI Prompts That Make You Money'
+        },
+        replyTo: process.env.SENDGRID_REPLY_TO || 'chris.t@ventarosales.com',
+        subject: '🎉 Your AI Prompts Guide is Ready! Start Earning Today',
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Your AI Prompts Guide is Ready!</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Payment Successful!</h1>
+              <p style="color: white; margin: 10px 0 0 0; font-size: 18px;">Your AI Prompts Guide is Ready</p>
             </div>
             
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/ebook?session_id=${session.id}" 
-                 style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">📖 Access Your Guide Now</a>
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;">
+              <h2 style="color: #333; margin-top: 0;">Thank you for your purchase!</h2>
+              
+              <p>Hi there,</p>
+              
+              <p>Your payment has been successfully processed, and your <strong>AI Prompts That Make You Money: 15-Page Guide</strong> is now ready for download.</p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${downloadLink}" 
+                   style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">📖 Access Your Guide Now</a>
+              </div>
+              
+              <h3>Need Help?</h3>
+              <p>If you have any questions or issues accessing your guide, simply reply to this email or contact us at <a href="mailto:chris.t@ventarosales.com" style="color: #667eea;">chris.t@ventarosales.com</a></p>
+              
+              <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
+                <p>Order ID: ${session.id}</p>
+                <p>Amount: $${(session.amount_total / 100).toFixed(2)}</p>
+                <p>Date: ${new Date().toLocaleDateString()}</p>
+              </div>
             </div>
-            
-            <div style="background: #e8f4fd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-              <h4 style="margin-top: 0; color: #0066cc;">💡 Quick Start Tip:</h4>
-              <p style="margin-bottom: 0;">Begin with Prompt #1 (E-commerce Product Descriptions) - it's the easiest way to start earning your first $50-$150!</p>
-            </div>
-            
-            <h3>Need Help?</h3>
-            <p>If you have any questions or issues accessing your guide, simply reply to this email or contact us at <a href="mailto:chris.t@ventarosales.com" style="color: #667eea;">chris.t@ventarosales.com</a></p>
-            
-            <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
-              <p>Order ID: ${session.id}</p>
-              <p>Amount: $${(session.amount_total / 100).toFixed(2)}</p>
-              <p>Date: ${new Date().toLocaleDateString()}</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    }
+          </body>
+          </html>
+        `
+      }
 
-    await sgMail.send(customerMsg)
-    console.log('Order confirmation email sent to:', customerEmail)
+      await sgMail.send(customerMsg)
+      console.log('Order confirmation email sent via fallback method to:', customerEmail)
+    }
 
     // Send notification email to admin
     const adminMsg = {

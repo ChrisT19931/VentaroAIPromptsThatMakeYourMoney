@@ -18,12 +18,43 @@ A complete online business for selling the "AI Prompts That Make You Money: 15-P
    ```
 
 2. **Set Up Environment Variables**
-   Create a `.env.local` file with your Stripe keys:
+   Copy the example environment file and update with your actual keys:
+   ```bash
+   cp .env.local.example .env.local
+   # Edit .env.local with your actual keys
    ```
+   
+   Verify your environment variables are set correctly:
+   ```bash
+   npm run verify-env
+   ```
+   
+   Required environment variables include:
+   ```
+   # Stripe
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
    STRIPE_SECRET_KEY=sk_test_your_secret_key
    STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+   
+   # Supabase
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   
+   # SendGrid
+   SENDGRID_API_KEY=SG.your-sendgrid-api-key
+   SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+   
+   # JWT
+   JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+   
+   # App
+   NEXT_PUBLIC_BASE_URL=http://localhost:3000
    ```
+   
+   For detailed setup instructions, see [VERCEL_ENV_SETUP.md](VERCEL_ENV_SETUP.md).
+   
+   To test your environment variables, see [ENVIRONMENT_TESTING.md](ENVIRONMENT_TESTING.md).
 
 3. **Run Development Server**
    ```bash
@@ -47,11 +78,15 @@ A complete online business for selling the "AI Prompts That Make You Money: 15-P
 2. **Deploy to Vercel**
    - Go to [vercel.com](https://vercel.com)
    - Import your GitHub repository
-   - Add environment variables in Vercel dashboard:
-     - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-     - `STRIPE_SECRET_KEY`
-     - `STRIPE_WEBHOOK_SECRET`
+   - Add all required environment variables in Vercel dashboard:
+     - Stripe: `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+     - Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+     - SendGrid: `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL`
+     - JWT: `JWT_SECRET`
+     - App: `NEXT_PUBLIC_BASE_URL` (set to your Vercel deployment URL)
    - Deploy!
+   
+   For detailed instructions on setting up environment variables in Vercel, see [VERCEL_ENV_SETUP.md](VERCEL_ENV_SETUP.md).
 
 ## Stripe Setup
 
@@ -66,13 +101,29 @@ A complete online business for selling the "AI Prompts That Make You Money: 15-P
 ├── pages/
 │   ├── index.js          # Homepage with SEO optimization
 │   ├── buy.js            # Purchase page with Stripe checkout
-│   ├── success.js        # Download page after payment
+│   ├── success.js        # Success page after payment
+│   ├── ebook.js          # Ebook download page
+│   ├── dashboard.js      # User dashboard
+│   ├── login.js          # User login
+│   ├── register.js       # User registration
 │   ├── _app.js           # App configuration
 │   └── api/
+│       ├── auth/         # Authentication endpoints
+│       ├── user/         # User-related endpoints
 │       ├── create-checkout-session.js  # Stripe checkout API
-│       └── download.js                 # File download API
+│       ├── download.js                 # File download API
+│       ├── webhook.js                  # Stripe webhook handler
+│       └── verify-access.js            # Ebook access verification
+├── lib/
+│   ├── auth.js           # Authentication utilities
+│   ├── sendgrid.js       # Email sending utilities
+│   └── supabase.js       # Database utilities
+├── scripts/
+│   └── verify-env.js     # Environment variables verification
 ├── styles/
 │   └── globals.css       # Global styles with Tailwind
+├── .env.local.example    # Example environment variables
+├── VERCEL_ENV_SETUP.md   # Vercel environment setup guide
 ├── package.json          # Dependencies
 ├── next.config.js        # Next.js configuration
 ├── tailwind.config.js    # Tailwind CSS configuration

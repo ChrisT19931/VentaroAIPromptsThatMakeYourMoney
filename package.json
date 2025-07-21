@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify-env": "node scripts/verify-env.js",
+    "generate-jwt-secret": "node scripts/generate-jwt-secret.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",

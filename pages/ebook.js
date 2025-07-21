@@ -36,6 +36,29 @@ export default function Ebook() {
       setLoading(false)
     }
   }, [session_id, token])
+  
+  // Auto-download when coming directly from payment
+  useEffect(() => {
+    // Check if this is a direct access from payment (has session_id and is authorized)
+    if (session_id && authorized && purchaseInfo) {
+      // Check if this is the first load after payment (using URL parameters)
+      const urlParams = new URLSearchParams(window.location.search)
+      const fromPayment = urlParams.has('session_id') && !urlParams.has('downloaded')
+      
+      if (fromPayment) {
+        // Add a slight delay to ensure the page is fully loaded
+        const timer = setTimeout(() => {
+          downloadPDF()
+          // Update URL to prevent auto-download on refresh
+          const newUrl = new URL(window.location.href)
+          newUrl.searchParams.set('downloaded', 'true')
+          window.history.replaceState({}, '', newUrl)
+        }, 1500)
+        
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [session_id, authorized, purchaseInfo])
 
   const verifyAccess = async () => {
     try {

@@ -38,7 +38,8 @@ export default async function handler(req, res) {
           },
         ],
         mode: 'payment',
-        success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+        // Direct users to the ebook download page instead of success page
+        success_url: `${req.headers.origin}/ebook?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/buy`,
         metadata: {
           customer_email: sanitizedEmail,
