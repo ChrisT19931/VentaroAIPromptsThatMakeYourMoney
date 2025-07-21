@@ -1,0 +1,11 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="20" cy="20" r="18" fill="#ffffff" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- VAI text in circle -->
+  <text x="20" y="26" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#000000">VAI</text>
+  
+  <!-- Company name -->
+  <text x="45" y="16" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="currentColor">Ventaro</text>
+  <text x="45" y="30" font-family="Arial, sans-serif" font-size="10" fill="currentColor" opacity="0.8">AI Agents</text>
+</svg>
