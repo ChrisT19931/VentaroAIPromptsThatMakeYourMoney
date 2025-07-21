@@ -1,26 +1,32 @@
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+// Simple Stripe initialization with error handling
+let stripe;
+try {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} catch (error) {
+  console.error('Failed to initialize Stripe:', error);
+}
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
+      // Check if Stripe is initialized
+      if (!stripe) {
+        return res.status(500).json({ error: 'Payment system not available' })
+      }
+      
       const { email } = req.body
 
-      // Validate input
-      if (!email) {
-        return res.status(400).json({ error: 'Email is required' })
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'Invalid email format' })
+      // Simple validation
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Valid email is required' })
       }
 
       // Sanitize email
       const sanitizedEmail = email.toLowerCase().trim()
 
-      // Create Checkout Sessions from body params.
+      // Simplified checkout session creation
       const session = await stripe.checkout.sessions.create({
         customer_email: sanitizedEmail,
         line_items: [
@@ -29,7 +35,7 @@ export default async function handler(req, res) {
               currency: 'usd',
               product_data: {
                 name: 'AI Prompts That Make You Money: 15-Page Guide',
-        description: '15-page guide with 15 profitable AI prompts, monetization strategies, and example outputs to help you earn $50-$500 per project.',
+                description: '15-page guide with 15 profitable AI prompts and monetization strategies',
                 images: ['https://ai-agents-mastery.vercel.app/ebook-cover.jpg'],
               },
               unit_amount: 300, // $3.00 in cents
@@ -38,20 +44,12 @@ export default async function handler(req, res) {
           },
         ],
         mode: 'payment',
-        // Direct users to the ebook download page instead of success page
         success_url: `${req.headers.origin}/ebook?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/buy`,
+        // Single metadata object with essential tracking info
         metadata: {
           customer_email: sanitizedEmail,
-          product: 'ai-prompts-guide',
-          timestamp: new Date().toISOString()
-        },
-        payment_intent_data: {
-          metadata: {
-            customer_email: sanitizedEmail,
-            product: 'ai-prompts-guide',
-            timestamp: new Date().toISOString()
-          }
+          product: 'ai-prompts-guide'
         }
       })
 
